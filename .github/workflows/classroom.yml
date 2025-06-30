@@ -1,0 +1,33 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Age Calculation Test
+      id: age-calculation-test
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Age Calculation Test
+        setup-command: ''
+        command: python3 convert.py
+        input: '2000'
+        expected-output: 25, int
+        comparison-method: contains
+        timeout: 10
+        max-score: 5
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        AGE-CALCULATION-TEST_RESULTS: "${{steps.age-calculation-test.outputs.result}}"
+      with:
+        runners: age-calculation-test
